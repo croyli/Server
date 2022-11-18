@@ -25,29 +25,20 @@ const middleware = [
 
 middleware.forEach((it) => server.use(it))
 
-server.get('/api/v1/user', (req, res) => {
-  res.json({ name: 'Pasha' })
-  res.end()
+// it skillcricial moment
+server.use((req, res, next) => {
+  res.set('x-skillcrucial-user', '75e66f9a-ace8-4669-9c6f-9062a988c7bc')
+  res.set('Access-Control-Expose-Headers', 'X-SKILLCRUCIAL-USER')
+  next()
 })
-
-server.get('/api/v1/users/:name', (req, res) => {
-  const { name } = req.params
-  res.json({ name })
-  res.end()
-})
+// it skillcricial moment
 
 server.get('/api/v1/users', async (req, res) => {
-  const { data: users } = await axios('https://jsonplaceholder.typicode.com/users')
-  res.json({ users })
+  const { data } =await axios('https://jsonplaceholder.typicode.com/users')
+  res.json({ data })
   res.end()
 })
 
-server.get('/api/v1/users/take/:numbers', async (req, res) => {
-  const { numbers } = req.params
-  const { data } = await axios('https://jsonplaceholder.typicode.com/users')
-  res.json( data.slice(0, +numbers))
-  res.end()
-})
 
 server.get('/*', (req, res) => {
   const initialState = {
