@@ -1,6 +1,7 @@
 import express from 'express'
 import path from 'path'
 import cors from 'cors'
+import axios from 'axios'
 import sockjs from 'sockjs'
 import cookieParser from 'cookie-parser'
 
@@ -11,7 +12,7 @@ require('colors')
 
 let connections = []
 
-const port = process.env.PORT || 8090
+const port = process.env.PORT || 2112
 const server = express()
 
 const middleware = [
@@ -24,9 +25,28 @@ const middleware = [
 
 middleware.forEach((it) => server.use(it))
 
-server.get('/', (req, res) => {
-  res.send(`
-  `)
+server.get('/api/v1/user', (req, res) => {
+  res.json({ name: 'Pasha' })
+  res.end()
+})
+
+server.get('/api/v1/users/:name', (req, res) => {
+  const { name } = req.params
+  res.json({ name })
+  res.end()
+})
+
+server.get('/api/v1/users', async (req, res) => {
+  const { data: users } = await axios('https://jsonplaceholder.typicode.com/users')
+  res.json({ users })
+  res.end()
+})
+
+server.get('/api/v1/users/take/:numbers', async (req, res) => {
+  const { numbers } = req.params
+  const { data } = await axios('https://jsonplaceholder.typicode.com/users')
+  res.json( data.slice(0, +numbers))
+  res.end()
 })
 
 server.get('/*', (req, res) => {
