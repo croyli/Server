@@ -4,9 +4,14 @@ import cors from 'cors'
 import axios from 'axios'
 import sockjs from 'sockjs'
 import cookieParser from 'cookie-parser'
-
+// import { readFile } from 'fs'
+// import { stat } from 'fs/promises'
 import config from './config'
 import Html from '../client/html'
+
+
+
+
 
 require('colors')
 
@@ -24,6 +29,9 @@ const middleware = [
 ]
 
 middleware.forEach((it) => server.use(it))
+// системный модуль fs
+const { unlink } = require('fs').promises
+
 
 // it skillcricial moment
 server.use((req, res, next) => {
@@ -33,9 +41,19 @@ server.use((req, res, next) => {
 })
 // it skillcricial moment
 
+
+const URL = 'https://jsonplaceholder.typicode.com/users'
+
+
 server.get('/api/v1/users', async (req, res) => {
-  const { data } =await axios('https://jsonplaceholder.typicode.com/users')
+  const { data } = await axios(URL)
   res.json({ data })
+  res.end()
+})
+
+server.delete('/api/v1/users', (req, res) => {
+  const delet = unlink(`${__dirname}/users.json`).then(() => console.log('File deleted')).catch(() => console.log('No file'))
+  res.json( delet )
   res.end()
 })
 
