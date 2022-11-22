@@ -4,10 +4,9 @@ import cors from 'cors'
 import axios from 'axios'
 import sockjs from 'sockjs'
 import cookieParser from 'cookie-parser'
-// import { readFile } from 'fs'
-// import { stat } from 'fs/promises'
 import config from './config'
 import Html from '../client/html'
+
 
 
 
@@ -30,7 +29,7 @@ const middleware = [
 
 middleware.forEach((it) => server.use(it))
 // системный модуль fs
-const { unlink } = require('fs').promises
+const { unlink, readFile, writeFile, stat } = require('fs').promises
 
 
 // it skillcricial moment
@@ -44,19 +43,29 @@ server.use((req, res, next) => {
 
 const URL = 'https://jsonplaceholder.typicode.com/users'
 
-
+// get file
 server.get('/api/v1/users', async (req, res) => {
-  const { data } = await axios(URL)
-  res.json({ data })
+  const { data }  = await axios(URL)
+  const write = writeFile(`${__dirname}/users.json`,   JSON.stringify(data)  , { encoding: 'utf8' })
+  const read = await readFile(`${__dirname}/users.json`, 'utf8')
+  .then(text =>  JSON.parse(text))
+  .catch(err => console.log(err))
+  const Availibility = await stat(`${__dirname}/users.json`, 'utf8')
+  .then(() => read)
+  .catch(() => write)
+  res.json(Availibility)
   res.end()
 })
+// get file
 
+
+// delete file
 server.delete('/api/v1/users', (req, res) => {
-  const delet = unlink(`${__dirname}/users.json`).then(() => console.log('File deleted')).catch(() => console.log('No file'))
-  res.json( delet )
+  const deleteFile = unlink(`${__dirname}/users.json`)
+  res.json(deleteFile)
   res.end()
 })
-
+// delete file
 
 server.get('/*', (req, res) => {
   const initialState = {
