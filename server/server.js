@@ -79,7 +79,6 @@ server.get('/api/v1/users', async (req, res) => {
   .then(() => ReadFile())
   .catch(() => WriteFile())
   res.json(Existans)
-  res.end()
 })
 // get file
 
@@ -90,9 +89,22 @@ server.delete('/api/v1/users', async (req, res) => {
     .then(() => DeleteFile())
     .catch(() => 'No file')
   res.json(Existans_delete)
-  res.end()
 })
 // delete file
+
+server.post('/api/v1/users',async (req, res) => {
+  const parse = JSON.stringify(await GlobalUrl().find((it, index) => index === 1))
+  // const { name, phone, username }  = req.body
+  // const post = {
+  //   name,
+  //   phone,
+  //   username
+  // }
+  // const pos = await Availibility()
+  //   .then(() => `${JSON.stringify(body)}`)
+  //   .catch(() => 'No file')
+  res.send(parse)
+})
 
 server.get('/*', (req, res) => {
   const initialState = {
