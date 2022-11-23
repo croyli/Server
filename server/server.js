@@ -43,26 +43,48 @@ server.use((req, res, next) => {
 
 const URL = 'https://jsonplaceholder.typicode.com/users'
 
+async function GlobalUrl() {
+  const result =  await axios.get(URL)
+  return result.data
+}
+
+async function WriteFile() {
+  const write = await writeFile(`${__dirname}/users.json`, JSON.stringify(await GlobalUrl()), 'utf8')
+  return write
+}
+
+async function ReadFile () {
+  const read = await readFile(`${__dirname}/users.json`, 'utf8')
+    .then((text) => JSON.parse(text))
+    .catch((err) => console.log(err))
+  return read
+}
+
+async function Availibility() {
+  const status = await stat(`${__dirname}/users.json`, 'utf8')
+  return status
+}
+
+
+
+
 // get file
 server.get('/api/v1/users', async (req, res) => {
-  const { data }  = await axios(URL)
-  const write = writeFile(`${__dirname}/users.json`,   JSON.stringify(data)  , { encoding: 'utf8' })
-  const read = await readFile(`${__dirname}/users.json`, 'utf8')
-  .then(text =>  JSON.parse(text))
-  .catch(err => console.log(err))
-  const Availibility = await stat(`${__dirname}/users.json`, 'utf8')
-  .then(() => read)
-  .catch(() => write)
-  res.json(Availibility)
+  const Existans = await Availibility().then(() => ReadFile()).catch(() => WriteFile())
+  res.json(Existans)
   res.end()
 })
 // get file
 
 
 // delete file
-server.delete('/api/v1/users', (req, res) => {
+server.delete('/api/v1/users', async (req, res) => {
+  const text = 'No file'
   const deleteFile = unlink(`${__dirname}/users.json`)
-  res.json(deleteFile)
+  const Existans_delete = await Availibility()
+    .then(() => deleteFile)
+    .catch(() => text)
+  res.json(Existans_delete)
   res.end()
 })
 // delete file
