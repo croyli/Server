@@ -158,7 +158,7 @@
     "nodemonConfig": {
         "ignore": [
             "*.hot-update.json",
-            ".server/users.json"
+            "../server/users.json"
         ]
     }
 }

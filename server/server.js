@@ -65,12 +65,19 @@ async function Availibility() {
   return status
 }
 
+async function DeleteFile(){
+  const deletefile = await unlink(`${__dirname}/users.json`)
+  return deletefile
+}
+
 
 
 
 // get file
 server.get('/api/v1/users', async (req, res) => {
-  const Existans = await Availibility().then(() => ReadFile()).catch(() => WriteFile())
+  const Existans = await Availibility()
+  .then(() => ReadFile())
+  .catch(() => WriteFile())
   res.json(Existans)
   res.end()
 })
@@ -79,11 +86,9 @@ server.get('/api/v1/users', async (req, res) => {
 
 // delete file
 server.delete('/api/v1/users', async (req, res) => {
-  const text = 'No file'
-  const deleteFile = unlink(`${__dirname}/users.json`)
   const Existans_delete = await Availibility()
-    .then(() => deleteFile)
-    .catch(() => text)
+    .then(() => DeleteFile())
+    .catch(() => 'No file')
   res.json(Existans_delete)
   res.end()
 })
