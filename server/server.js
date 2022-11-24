@@ -94,6 +94,7 @@ server.delete('/api/v1/users', async (req, res) => {
 })
 // delete file
 
+// post file
 server.post('/api/v1/users',async (req, res) => {
   const pos = await readFile(GlobalPath, 'utf8')
     .then(async (str) => {
@@ -101,24 +102,34 @@ server.post('/api/v1/users',async (req, res) => {
       const lastId = parseString[parseString.length - 1].id + 1
       await writeFile(
         GlobalPath,
-        JSON.stringify([...parseString, { id: lastId }]),
+        JSON.stringify([...parseString, { ...req.body, id: lastId }]),
         'utf8'
       )
-      return { status: 'succsed', id: lastId }
+      return { status: 'success', id: lastId }
     })
-    .catch(async  (err) => {
+    .catch(async(err) => {
       console.log(err)
       await writeFile(GlobalPath, JSON.stringify([{ ...req.body, id: 1 }]), 'utf8')
+      return { status: 'succsed', id: 1 }
     })
   res.json(pos)
 })
-
+// post file
 
 server.delete('/api/v1/users/:userId',async (req, res) => {
-  const { userId } = req.params
-  const { data: users } = await GlobalUrl()
-  const exam = users.filter((it, index) => index !== userId)
-  res.json(exam)
+  const response = await readFile(GlobalPath, 'utf8')
+  .then(async (str) => {
+    const parsedString = JSON.parse(str)
+    const filterString = parsedString.filter(it => {
+      return +req.params.userId !== it.id
+    })
+    await writeFile(GlobalPath, JSON.stringify(filterString), 'utf8')
+    return {status: 'success', id: +req.params.userId}
+  })
+  .catch(() => {
+    return { status: 'No file', id: +req.params.userId }
+  })
+  res.json(response)
 })
 
 server.get('/*', (req, res) => {
