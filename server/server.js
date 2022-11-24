@@ -19,12 +19,22 @@ let connections = []
 const port = process.env.PORT || 2112
 const server = express()
 
+
+// it skillcricial moment
+const setHeaders = (req, res, next) => {
+  res.set('x-skillcrucial-user', '75e66f9a-ace8-4669-9c6f-9062a988c7bc')
+  res.set('Access-Control-Expose-Headers', 'X-SKILLCRUCIAL-USER')
+  next()
+}
+// it skillcricial moment
+
 const middleware = [
   cors(),
   express.static(path.resolve(__dirname, '../dist')),
   express.urlencoded({ limit: '50mb', extended: true, parameterLimit: 50000 }),
   express.json({ limit: '50mb', extended: true }),
-  cookieParser()
+  cookieParser(),
+  setHeaders
 ]
 
 middleware.forEach((it) => server.use(it))
@@ -32,13 +42,7 @@ middleware.forEach((it) => server.use(it))
 const { unlink, readFile, writeFile, stat } = require('fs').promises
 
 
-// it skillcricial moment
-server.use((req, res, next) => {
-  res.set('x-skillcrucial-user', '75e66f9a-ace8-4669-9c6f-9062a988c7bc')
-  res.set('Access-Control-Expose-Headers', 'X-SKILLCRUCIAL-USER')
-  next()
-})
-// it skillcricial moment
+
 
 
 const URL = 'https://jsonplaceholder.typicode.com/users'
@@ -116,6 +120,8 @@ server.post('/api/v1/users',async (req, res) => {
 })
 // post file
 
+
+// delete id
 server.delete('/api/v1/users/:userId',async (req, res) => {
   const response = await readFile(GlobalPath, 'utf8')
   .then(async (str) => {
@@ -128,6 +134,26 @@ server.delete('/api/v1/users/:userId',async (req, res) => {
   })
   .catch(() => {
     return { status: 'No file', id: +req.params.userId }
+  })
+  res.json(response)
+})
+// delete id
+
+
+server.patch('/api/v1/users/:userId', async (req, res) => {
+  const { userId } = req.params
+  const updatedUser = {...req.body, id: +userId}
+  const response = await readFile(GlobalPath, 'utf8')
+  .then(async (str) => {
+    const parseString = JSON.parse(str)
+    const updatedList = parseString.map((it) => {
+      return it.id === +userId ? {...it, ...updatedUser} : it
+    })
+    await writeFile(GlobalPath, JSON.stringify(updatedList), 'utf8')
+    return ({ status: 'success', id: +userId })
+  })
+  .catch(() => {
+    return {status: 'No file', id: + userId}
   })
   res.json(response)
 })
