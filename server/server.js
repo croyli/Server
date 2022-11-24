@@ -43,30 +43,32 @@ server.use((req, res, next) => {
 
 const URL = 'https://jsonplaceholder.typicode.com/users'
 
+const GlobalPath = `${__dirname}/users.json`
+
 async function GlobalUrl() {
   const result =  await axios.get(URL)
   return result.data
 }
 
 async function WriteFile() {
-  const write = await writeFile(`${__dirname}/users.json`, JSON.stringify(await GlobalUrl()), 'utf8')
+  const write = await writeFile(GlobalPath, JSON.stringify(await GlobalUrl()), 'utf8')
   return write
 }
 
 async function ReadFile () {
-  const read = await readFile(`${__dirname}/users.json`, 'utf8')
+  const read = await readFile(GlobalPath, 'utf8')
     .then((text) => JSON.parse(text))
     .catch((err) => console.log(err))
   return read
 }
 
 async function Availibility() {
-  const status = await stat(`${__dirname}/users.json`, 'utf8')
+  const status = await stat(GlobalPath, 'utf8')
   return status
 }
 
 async function DeleteFile(){
-  const deletefile = await unlink(`${__dirname}/users.json`)
+  const deletefile = await unlink(GlobalPath)
   return deletefile
 }
 
@@ -93,17 +95,30 @@ server.delete('/api/v1/users', async (req, res) => {
 // delete file
 
 server.post('/api/v1/users',async (req, res) => {
-  const parse = JSON.stringify(await GlobalUrl().find((it, index) => index === 1))
-  // const { name, phone, username }  = req.body
-  // const post = {
-  //   name,
-  //   phone,
-  //   username
-  // }
-  // const pos = await Availibility()
-  //   .then(() => `${JSON.stringify(body)}`)
-  //   .catch(() => 'No file')
-  res.send(parse)
+  const pos = await readFile(GlobalPath, 'utf8')
+    .then(async (str) => {
+      const parseString = JSON.parse(str)
+      const lastId = parseString[parseString.length - 1].id + 1
+      await writeFile(
+        GlobalPath,
+        JSON.stringify([...parseString, { id: lastId }]),
+        'utf8'
+      )
+      return { status: 'succsed', id: lastId }
+    })
+    .catch(async  (err) => {
+      console.log(err)
+      await writeFile(GlobalPath, JSON.stringify([{ ...req.body, id: 1 }]), 'utf8')
+    })
+  res.json(pos)
+})
+
+
+server.delete('/api/v1/users/:userId',async (req, res) => {
+  const { userId } = req.params
+  const { data: users } = await GlobalUrl()
+  const exam = users.filter((it, index) => index !== userId)
+  res.json(exam)
 })
 
 server.get('/*', (req, res) => {
