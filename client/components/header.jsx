@@ -1,10 +1,11 @@
 import React, { useState } from 'react'
-import history from 'history'
+import {history} from '../redux'
 
 const Header = () => {
   const [toggled, toggle] = useState(false)
-  const google = () => {
-    link = history.push('https://www.google.com/')
+
+  const goToGoogle = () => {
+    history.push('/https://www.google.com')
   }
 
   return (
@@ -31,7 +32,7 @@ const Header = () => {
       {toggled && (
         <div id="menu" className="block">
           <button
-            onClick='https://www.google.com/'
+            onClick={goToGoogle}
             type="button"
             className="flex items-center px-3 py-2 border rounded text-gray-700 border-gray-700 hover:text-white hover:border-white"
           >
