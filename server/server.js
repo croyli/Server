@@ -7,18 +7,12 @@ import cookieParser from 'cookie-parser'
 import config from './config'
 import Html from '../client/html'
 
-
-
-
-
-
 require('colors')
 
 let connections = []
 
 const port = process.env.PORT || 2112
 const server = express()
-
 
 // it skillcricial moment
 const setHeaders = (req, res, next) => {
@@ -41,16 +35,12 @@ middleware.forEach((it) => server.use(it))
 // системный модуль fs
 const { unlink, readFile, writeFile, stat } = require('fs').promises
 
-
-
-
-
 const URL = 'https://jsonplaceholder.typicode.com/users'
 
 const GlobalPath = `${__dirname}/users.json`
 
 async function GlobalUrl() {
-  const result =  await axios.get(URL)
+  const result = await axios.get(URL)
   return result.data
 }
 
@@ -59,7 +49,7 @@ async function WriteFile() {
   return write
 }
 
-async function ReadFile () {
+async function ReadFile() {
   const read = await readFile(GlobalPath, 'utf8')
     .then((text) => JSON.parse(text))
     .catch((err) => console.log(err))
@@ -71,23 +61,19 @@ async function Availibility() {
   return status
 }
 
-async function DeleteFile(){
+async function DeleteFile() {
   const deletefile = await unlink(GlobalPath)
   return deletefile
 }
 
-
-
-
 // get file
 server.get('/api/v1/users', async (req, res) => {
   const Existans = await Availibility()
-  .then(() => ReadFile())
-  .catch(() => WriteFile())
+    .then(() => ReadFile())
+    .catch(() => WriteFile())
   res.json(Existans)
 })
 // get file
-
 
 // delete file
 server.delete('/api/v1/users', async (req, res) => {
@@ -99,7 +85,7 @@ server.delete('/api/v1/users', async (req, res) => {
 // delete file
 
 // post file
-server.post('/api/v1/users',async (req, res) => {
+server.post('/api/v1/users', async (req, res) => {
   const pos = await readFile(GlobalPath, 'utf8')
     .then(async (str) => {
       const parseString = JSON.parse(str)
@@ -111,7 +97,7 @@ server.post('/api/v1/users',async (req, res) => {
       )
       return { status: 'success', id: lastId }
     })
-    .catch(async(err) => {
+    .catch(async (err) => {
       console.log(err)
       await writeFile(GlobalPath, JSON.stringify([{ ...req.body, id: 1 }]), 'utf8')
       return { status: 'succsed', id: 1 }
@@ -120,41 +106,39 @@ server.post('/api/v1/users',async (req, res) => {
 })
 // post file
 
-
 // delete id
-server.delete('/api/v1/users/:userId',async (req, res) => {
+server.delete('/api/v1/users/:userId', async (req, res) => {
   const response = await readFile(GlobalPath, 'utf8')
-  .then(async (str) => {
-    const parsedString = JSON.parse(str)
-    const filterString = parsedString.filter(it => {
-      return +req.params.userId !== it.id
+    .then(async (str) => {
+      const parsedString = JSON.parse(str)
+      const filterString = parsedString.filter((it) => {
+        return +req.params.userId !== it.id
+      })
+      await writeFile(GlobalPath, JSON.stringify(filterString), 'utf8')
+      return { status: 'success', id: +req.params.userId }
     })
-    await writeFile(GlobalPath, JSON.stringify(filterString), 'utf8')
-    return {status: 'success', id: +req.params.userId}
-  })
-  .catch(() => {
-    return { status: 'No file', id: +req.params.userId }
-  })
+    .catch(() => {
+      return { status: 'No file', id: +req.params.userId }
+    })
   res.json(response)
 })
 // delete id
 
-
 server.patch('/api/v1/users/:userId', async (req, res) => {
   const { userId } = req.params
-  const updatedUser = {...req.body, id: +userId}
+  const updatedUser = { ...req.body, id: +userId }
   const response = await readFile(GlobalPath, 'utf8')
-  .then(async (str) => {
-    const parseString = JSON.parse(str)
-    const updatedList = parseString.map((it) => {
-      return it.id === +userId ? {...it, ...updatedUser} : it
+    .then(async (str) => {
+      const parseString = JSON.parse(str)
+      const updatedList = parseString.map((it) => {
+        return it.id === +userId ? { ...it, ...updatedUser } : it
+      })
+      await writeFile(GlobalPath, JSON.stringify(updatedList), 'utf8')
+      return { status: 'success', id: +userId }
     })
-    await writeFile(GlobalPath, JSON.stringify(updatedList), 'utf8')
-    return ({ status: 'success', id: +userId })
-  })
-  .catch(() => {
-    return {status: 'No file', id: + userId}
-  })
+    .catch(() => {
+      return { status: 'No file', id: +userId }
+    })
   res.json(response)
 })
 

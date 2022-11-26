@@ -1,13 +1,13 @@
-import React from "react";
+import React from 'react'
 import { Link } from 'react-router-dom'
-import Head from "./head";
-
-
+import Head from './head'
+import Header from './header'
 
 const Dash = () => {
   return (
     <>
       <Head title="Hello" />
+      <Header />
       <div id="title" className="flex justify-center items-center h-screen">
         <div className="flex flex-col justify-center bg-indigo-800 p-10 rounded-xl select-none">
           <Link
@@ -22,7 +22,7 @@ const Dash = () => {
             Go to main
           </Link>
           <hr />
-          <span className="text-white text-right font-semibold">Dashboard</span>
+          <span className="text-white text-right font-semibold">dashboard</span>
           <hr />
         </div>
       </div>
