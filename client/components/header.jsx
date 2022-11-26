@@ -1,8 +1,11 @@
 import React, { useState } from 'react'
+import history from 'history'
 
 const Header = () => {
   const [toggled, toggle] = useState(false)
-  // const [value, setvalue] = useState(false)
+  const google = () => {
+    link = history.push('https://www.google.com/')
+  }
 
   return (
     <nav className="flex items-center justify-between flex-wrap bg-gray-400 p-6">
